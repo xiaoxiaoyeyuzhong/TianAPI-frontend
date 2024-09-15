@@ -57,6 +57,7 @@ export const requestConfig: RequestConfig = {
       if (code !== 0) {
         throw new Error(data.message ?? '服务器错误');
       }
+      //如果一切如常，返回原始的数据
       return response;
     },
   ],

@@ -1,8 +1,8 @@
-import { addUserUsingPost } from '@/services/TianAPI-backend/userController';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
 import '@umijs/max';
 import { message, Modal } from 'antd';
 import React from 'react';
+import {addInterfaceInfoUsingPost} from "@/services/TianAPI-backend/interfaceInfoController";
 
 interface Props {
   visible: boolean;
@@ -18,7 +18,7 @@ interface Props {
 const handleAdd = async (fields: API.UserAddRequest) => {
   const hide = message.loading('正在添加');
   try {
-    await addUserUsingPost(fields);
+    await addInterfaceInfoUsingPost(fields);
     hide();
     message.success('创建成功');
     return true;

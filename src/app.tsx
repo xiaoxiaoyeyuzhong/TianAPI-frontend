@@ -3,9 +3,10 @@ import { getLoginUserUsingGet } from '@/services/TianAPI-backend/userController'
 import type { RunTimeLayoutConfig } from '@umijs/max';
 import { history } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
-import { AvatarDropdown } from './components/RightContent/AvatarDropdown';
+import {AvatarDropdown, AvatarName} from './components/RightContent/AvatarDropdown';
 import { requestConfig } from './requestConfig';
 import {QuestionCircleFill} from "antd-mobile-icons";
+import {Question} from "@/components/RightContent";
 
 const loginPath = '/user/login';
 
@@ -34,12 +35,12 @@ export async function getInitialState(): Promise<InitialState> {
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 // @ts-ignore
-export const layout: RunTimeLayoutConfig = ({ initialState,setInitialState }) => {
+export const layout: RunTimeLayoutConfig = ({ initialState }) => {
   return {
-    actionsRender: () =>[<QuestionCircleFill key="doc" />],
+    actionsRender: () =>[<Question key="doc" />],
     avatarProps: {
       src: initialState?.loginUser?.userAvatar,
-      title: <AvatarDropdown />,
+      title: <AvatarName />,
       render: () => {
         return <AvatarDropdown />;
       },

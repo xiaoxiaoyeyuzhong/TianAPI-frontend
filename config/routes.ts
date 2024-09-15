@@ -1,5 +1,9 @@
 export default [
   {
+    path: '/',name:'主页',icon: 'smile' ,component: './Index'
+  },
+
+  {
     path: '/user',
     layout: false,
     routes: [
@@ -7,17 +11,15 @@ export default [
       { path: '/user/register', component: './User/Register' },
     ],
   },
-  { path: '/welcome', icon: 'smile', component: './Welcome', name: '欢迎页' },
   {
     path: '/admin',
     icon: 'crown',
     name: '管理页',
     access: 'canAdmin',
     routes: [
-      { path: '/admin', redirect: '/admin/user' },
-      { icon: 'table', path: '/admin/user', component: './Admin/User', name: '用户管理' },
+      { path: '/admin', redirect: '/admin/interfaceInfo' },
+      { icon: 'table', path: '/admin/interfaceInfo', component: './Admin/InterfaceInfo', name: '接口管理' },
     ],
   },
-  { path: '/', redirect: '/welcome' },
   { path: '*', layout: false, component: './404' },
 ];

@@ -1,10 +1,10 @@
 /**
  * @see https://umijs.org/zh-CN/plugins/plugin-access
  * */
-export default function access(initialState: { currentUser?: API.LoginUserVO } | undefined) {
-  const { currentUser } = initialState ?? {};
+export default function access(initialState: { loginUser?: API.UserVO } | undefined) {
+  const { loginUser } = initialState ?? {};
   return {
-    canUser: currentUser,
-    canAdmin: currentUser && currentUser.userRole === 'admin',
+    canUser: loginUser,
+    canAdmin: loginUser && loginUser.userRole === 'admin',
   };
 }

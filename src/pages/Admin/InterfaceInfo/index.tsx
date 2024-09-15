@@ -1,15 +1,15 @@
-import CreateModal from '@/pages/Admin/User/components/CreateModal';
-import UpdateModal from '@/pages/Admin/User/components/UpdateModal';
-import {
-  deleteUserUsingPost,
-  listUserByPageUsingGet,
-} from '@/services/TianAPI-backend/userController';
+import CreateModal from '@/pages/Admin/InterfaceInfo/components/CreateModal';
+import UpdateModal from '@/pages/Admin/InterfaceInfo/components/UpdateModal';
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable } from '@ant-design/pro-components';
 import '@umijs/max';
 import { Button, message, Space, Typography } from 'antd';
 import React, { useRef, useState } from 'react';
+import {
+  deleteInterfaceInfoUsingPost,
+  listInterfaceInfoByPageUsingPost, offlineInterfaceInfoUsingPost, onlineInterfaceInfoUsingPost
+} from "@/services/TianAPI-backend/interfaceInfoController";
 
 /**
  * 用户管理页面
@@ -30,11 +30,11 @@ const UserAdminPage: React.FC = () => {
    *
    * @param row
    */
-  const handleDelete = async (row: API.User) => {
+  const handleDelete = async (row: API.InterfaceInfo) => {
     const hide = message.loading('正在删除');
     if (!row) return true;
     try {
-      await deleteUserUsingPost({
+      await deleteInterfaceInfoUsingPost({
         id: row.id as any,
       });
       hide();
@@ -49,9 +49,55 @@ const UserAdminPage: React.FC = () => {
   };
 
   /**
+   * 发布接口
+   *
+   * @param row
+   */
+  const handleOnLine = async (row: API.InterfaceInfo) => {
+    const hide = message.loading('正在发布');
+    if (!row) return true;
+    try {
+      await onlineInterfaceInfoUsingPost({
+        id: row.id as any,
+      });
+      hide();
+      message.success('发布成功');
+      actionRef?.current?.reload();
+      return true;
+    } catch (error: any) {
+      hide();
+      message.error('发布失败，' + error.message);
+      return false;
+    }
+  };
+
+  /**
+   * 下线接口
+   *
+   * @param row
+   */
+  const handleOffLine = async (row: API.InterfaceInfo) => {
+    const hide = message.loading('正在下线');
+    if (!row) return true;
+    try {
+      await offlineInterfaceInfoUsingPost({
+        id: row.id as any,
+      });
+      hide();
+      message.success('下线成功');
+      actionRef?.current?.reload();
+      return true;
+    } catch (error: any) {
+      hide();
+      message.error('下线失败，' + error.message);
+      return false;
+    }
+  };
+
+  /**
    * 表格列配置
    */
-  const columns: ProColumns<API.User>[] = [
+  const columns: ProColumns<API.InterfaceInfo>[] = [
     {
       title: 'id',
       dataIndex: 'id',
@@ -59,40 +105,51 @@ const UserAdminPage: React.FC = () => {
       hideInForm: true,
     },
     {
-      title: '账号',
-      dataIndex: 'userAccount',
+      title: '接口名称',
+      dataIndex: 'name',
       valueType: 'text',
     },
     {
-      title: '用户名',
-      dataIndex: 'userName',
+      title: '接口描述',
+      dataIndex: 'description',
       valueType: 'text',
     },
     {
-      title: '头像',
-      dataIndex: 'userAvatar',
-      valueType: 'image',
-      fieldProps: {
-        width: 64,
-      },
-      hideInSearch: true,
+      title: '接口网址',
+      dataIndex: 'url',
+      valueType: 'text',
     },
     {
-      title: '简介',
-      dataIndex: 'userProfile',
-      valueType: 'textarea',
+      title: '请求头',
+      dataIndex: 'requestHeader',
+      valueType: 'text',
     },
     {
-      title: '权限',
-      dataIndex: 'userRole',
+      title: '响应头',
+      dataIndex: 'responseHeader',
+      valueType: 'text',
+    },
+    {
+      title: '接口状态',
+      dataIndex: 'status',
       valueEnum: {
-        user: {
-          text: '用户',
+        0: {
+          text: '关闭',
         },
-        admin: {
-          text: '管理员',
+        1: {
+          text: '开启',
         },
       },
+    },
+    {
+      title: '请求类型',
+      dataIndex: 'method',
+      valueType: 'text',
+    },
+    {
+      title: '接口创建人id',
+      dataIndex: 'userId',
+      valueType: 'text',
     },
     {
       title: '创建时间',
@@ -124,6 +181,16 @@ const UserAdminPage: React.FC = () => {
           >
             修改
           </Typography.Link>
+          {record.status === 0 && (
+            <Typography.Link  onClick={() => handleOnLine(record)}>
+              发布
+            </Typography.Link>
+          )}
+          {record.status === 1 && (
+            <Typography.Link onClick={() => handleOffLine(record)}>
+              下线
+            </Typography.Link>
+          )}
           <Typography.Link type="danger" onClick={() => handleDelete(record)}>
             删除
           </Typography.Link>
@@ -133,7 +200,7 @@ const UserAdminPage: React.FC = () => {
   ];
   return (
     <PageContainer>
-      <ProTable<API.User>
+      <ProTable<API.InterfaceInfo>
         headerTitle={'查询表格'}
         actionRef={actionRef}
         rowKey="key"
@@ -151,22 +218,23 @@ const UserAdminPage: React.FC = () => {
             <PlusOutlined /> 新建
           </Button>,
         ]}
-        request={async (params, sort, filter) => {
-          const sortField = Object.keys(sort)?.[0];
-          const sortOrder = sort?.[sortField] ?? undefined;
-
-          const { data, code } = await listUserByPageUsingGet({
-            ...params,
-            sortField,
-            sortOrder,
-            ...filter,
-          } as API.UserQueryRequest);
-
-          return {
-            success: code === 0,
-            data: data?.records || [],
-            total: Number(data?.total) || 0,
-          };
+        request={async (params) => {
+          const res: API.BaseResponsePageInterfaceInfo = await listInterfaceInfoByPageUsingPost({
+            ...params
+          })
+          if (res?.data) {
+            return  {
+              data: res?.data.records || [],
+              success: true,
+              total: res?.data.total || 0,
+            }
+          }else {//如果返回的数据为空，也要返回，返回空数组
+            return{
+              data: [],
+              success: false,
+              total: 0,
+            }
+          }
         }}
         columns={columns}
       />

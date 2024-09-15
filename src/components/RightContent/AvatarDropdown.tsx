@@ -2,7 +2,6 @@ import { userLogoutUsingPost } from '@/services/TianAPI-backend/userController';
 import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { history, useModel } from '@umijs/max';
 import { Avatar, Button, Space } from 'antd';
-import { stringify } from 'querystring';
 import type { MenuInfo } from 'rc-menu/lib/interface';
 import React, { useCallback } from 'react';
 import { flushSync } from 'react-dom';
@@ -13,37 +12,26 @@ export type GlobalHeaderRightProps = {
   menu?: boolean;
 };
 
+
 export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
-  /**
-   * 退出登录，并且将当前的 url 保存
-   */
-  const loginOut = async () => {
-    await userLogoutUsingPost();
-    const { search, pathname } = window.location;
-    const urlParams = new URL(window.location.href).searchParams;
-    /** 此方法会跳转到 redirect 参数所在的位置 */
-    const redirect = urlParams.get('redirect');
-    // Note: There may be security issues, please note
-    if (window.location.pathname !== '/user/login' && !redirect) {
-      history.replace({
-        pathname: '/user/login',
-        search: stringify({
-          redirect: pathname + search,
-        }),
-      });
-    }
-  };
+
 
   const { initialState, setInitialState } = useModel('@@initialState');
+
 
   const onMenuClick = useCallback(
     (event: MenuInfo) => {
       const { key } = event;
       if (key === 'logout') {
         flushSync(() => {
-          setInitialState((s) => ({ ...s, currentUser: undefined }));
+          setInitialState((s) => ({ ...s, loginUser: undefined }));
         });
-        loginOut();
+        userLogoutUsingPost().catch((error)=>{
+          console.log("用户注销失败",error);
+        });
+        const {search,pathname} = window.location;
+        const redirect = pathname + search;
+        history.replace('/user/login',{redirect});
         return;
       }
       history.push(`/account/${key}`);
@@ -51,9 +39,9 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
     [setInitialState],
   );
 
-  const { currentUser } = initialState || {};
+  const { loginUser } = initialState || {};
 
-  if (!currentUser) {
+  if (!loginUser) {
     return (
       <Link to="/user/login">
         <Button type="primary" shape="round">
@@ -97,15 +85,19 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
       }}
     >
       <Space>
-        {currentUser?.userAvatar ? (
-          <Avatar size="small" src={currentUser?.userAvatar} />
+        {loginUser?.userAvatar ? (
+          <Avatar size="large" src={loginUser?.userAvatar} />
         ) : (
-          <Avatar size="small" icon={<UserOutlined />} />
+          <Avatar size="large" icon={<UserOutlined />} />
         )}
-        <span className="anticon">{currentUser?.userName ?? '无名'}</span>
+        <span className="anticon">{loginUser?.userName ?? '无名'}</span>
       </Space>
     </HeaderDropdown>
   );
 };
 
-export const AvatarName = () => {};
+export const AvatarName = () => {
+    const { initialState } = useModel('@@initialState');
+    const { loginUser } = initialState || {};
+    return <span className="anticon">{loginUser?.userName}</span>;
+};
