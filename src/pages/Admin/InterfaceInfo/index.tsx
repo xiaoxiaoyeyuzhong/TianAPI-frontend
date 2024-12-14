@@ -23,7 +23,7 @@ const UserAdminPage: React.FC = () => {
   const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
   // 当前用户点击的数据
-  const [currentRow, setCurrentRow] = useState<API.User>();
+  const [currentRow, setCurrentRow] = useState<API.InterfaceInfo>();
 
   /**
    * 删除节点
@@ -122,12 +122,12 @@ const UserAdminPage: React.FC = () => {
     {
       title: '请求头',
       dataIndex: 'requestHeader',
-      valueType: 'text',
+      valueType: 'jsonCode',
     },
     {
       title: '响应头',
       dataIndex: 'responseHeader',
-      valueType: 'text',
+      valueType: 'jsonCode',
     },
     {
       title: '接口状态',
@@ -144,7 +144,25 @@ const UserAdminPage: React.FC = () => {
     {
       title: '请求类型',
       dataIndex: 'method',
-      valueType: 'text',
+      valueEnum: {
+        POST: {
+          text: 'POST',
+        },
+        GET: {
+          text: 'GET',
+        },
+        PUT: {
+          text: 'PUT',
+        },
+        DELETE: {
+          text: 'DELETE',
+        },
+      },
+    },
+    {
+      title: '请求参数',
+      dataIndex: 'requestParams',
+      valueType: 'jsonCode',
     },
     {
       title: '接口创建人id',
@@ -156,7 +174,6 @@ const UserAdminPage: React.FC = () => {
       sorter: true,
       dataIndex: 'createTime',
       valueType: 'dateTime',
-      hideInSearch: true,
       hideInForm: true,
     },
     {

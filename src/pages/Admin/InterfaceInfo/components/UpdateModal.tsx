@@ -1,13 +1,13 @@
-import { updateUserUsingPost } from '@/services/TianAPI-backend/userController';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
 import '@umijs/max';
 import { message, Modal } from 'antd';
 import React from 'react';
+import {updateInterfaceInfoUsingPost} from "@/services/TianAPI-backend/interfaceInfoController";
 
 interface Props {
-  oldData?: API.User;
+  oldData?: API.InterfaceInfo;
   visible: boolean;
-  columns: ProColumns<API.User>[];
+  columns: ProColumns<API.InterfaceInfo>[];
   onSubmit: (values: API.UserAddRequest) => void;
   onCancel: () => void;
 }
@@ -17,10 +17,10 @@ interface Props {
  *
  * @param fields
  */
-const handleUpdate = async (fields: API.UserUpdateRequest) => {
+const handleUpdate = async (fields: API.InterfaceInfoUpdateRequest) => {
   const hide = message.loading('正在更新');
   try {
-    await updateUserUsingPost(fields);
+    await updateInterfaceInfoUsingPost(fields);
     hide();
     message.success('更新成功');
     return true;
